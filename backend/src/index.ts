@@ -20,17 +20,32 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 // TODO: Implement a route handler that returns a list of all posts, ordered by date created.
 app.get("/posts", async (req, res) => {
-    res.send("TODO: GET /posts");
+    const collection = db.collection("posts");
+    try {
+        const posts = await collection.find().toArray()
+        res.send(posts)
+    } catch (error) {
+        return res.status(500).send()
+    }
 });
 
 // TODO: Implement a route handler that creates a new post.
 app.post("/posts", async (req, res) => {
+    const collection = db.collection("posts");
+    const newPost = {title: req.body.title, body: req.body.body, createdAt: req.body.createdAt};
+    // We use a try-catch to handle the error case.
+    try {
+        await collection.insertOne(newPost);
+            return res.json(newPost);
+    } catch (e) {
+    return res.status(500).send();
+    }
     res.send("TODO: POST /posts");
 });
 
 // TODO: Implement a route handler that gets a post associated with a given postID.
 app.get("/posts/:postID", async (req, res) => {
-    res.send("TODO: GET /posts/{postID}");
+    res.send("TODO: GET /posts/12");
 });
 
 // TODO: Implement a route handler that updates the post associated with a given postID.
@@ -73,7 +88,7 @@ app.delete("/posts/:postID/comments/:commentID", async (req, res) => {
 
 // Start the Express server.
 function start() {
-    const client = new MongoClient(process.env.ATLAS_URI);
+    const client = new MongoClient("mongodb+srv://alicejmin:ecila0515@test.i2wek.mongodb.net/db?retryWrites=true&w=majority");
     client.connect()
         .then(() => {
             console.log('Connected successfully to server');
@@ -82,7 +97,7 @@ function start() {
                 console.log(`server started at http://localhost:${port}`);
             });
         })
-        .catch((err) => {
+        .catch((err: any) => {
             console.log("error connecting to mongoDB!", err);
         });
 }
